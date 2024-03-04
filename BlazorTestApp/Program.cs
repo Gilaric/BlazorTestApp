@@ -35,6 +35,14 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AuthenticatedUser", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
