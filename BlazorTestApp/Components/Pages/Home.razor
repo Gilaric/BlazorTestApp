@@ -2,9 +2,18 @@
 
 @using Microsoft.AspNetCore.Authorization
 
-@attribute [Authorize(Policy = "AuthenticatedUser")]
+@* @attribute [Authorize(Policy = "AuthenticatedUser")] *@
 
 <PageTitle>Home</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div>You are logged in...</div>
+    </Authorized>
+    <NotAuthorized>
+        <div>You are NOT logged in...</div>
+    </NotAuthorized>
+</AuthorizeView>
 
 <h1>Hello, world!</h1>
 
