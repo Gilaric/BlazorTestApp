@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BlazorTestApp.Tests.LoginTests;
 
 namespace BlazorTestApp.Tests.LoginWith2faTests
 {
-    public class LoginTests : TestContext
+    public class LoginWith2faTests : TestContext
     {
         [Fact]
         public void Test()

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlazorTestApp.Tests.RegisterTests
 {
-    public class LoginTests : TestContext
+    public class RegisterTests : TestContext
     {
         [Fact]
         public void Test()
@@ -16,7 +12,7 @@ namespace BlazorTestApp.Tests.RegisterTests
             authContext.SetAuthorized("TEST USER");
 
             // Act
-            var cut = RenderComponent<Login>();
+            var cut = RenderComponent<Register>();
 
             // Assert
             cut.MarkupMatches(@"<h1>Welcome TEST USER</h1>

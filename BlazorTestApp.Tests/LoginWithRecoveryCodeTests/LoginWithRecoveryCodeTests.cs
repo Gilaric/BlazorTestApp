@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BlazorTestApp.Tests.LoginTests;
 
 namespace BlazorTestApp.Tests.LoginWithRecoveryCodeTests
 {
-    public class LoginTests : TestContext
+    public class LoginWithRecoveryCodeTests : TestContext
     {
         [Fact]
         public void Test()
