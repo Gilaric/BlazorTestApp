@@ -53,7 +53,6 @@ namespace BlazorTestApp.Tests
 
             // Assert
             cut.MarkupMatches("<div>You are NOT logged in...</div>");
-
         }
 
         [Fact]
