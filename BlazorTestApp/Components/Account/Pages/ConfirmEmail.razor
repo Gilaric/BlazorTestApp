@@ -11,8 +11,11 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
 @using System.Text.Encodings.Web
-@using QRCoder
 @using System.Drawing
+
+@using SkiaSharp
+@using SkiaSharp.QrCode
+@using SkiaSharp.QrCode.Image
 
 @inject IdentityUserAccessor UserAccessor
 @inject UrlEncoder UrlEncoder
@@ -108,14 +111,37 @@
 
     private void GenerateQRCodeImageUrl(string authenticatorUri)
     {
-        QRCodeGenerator qrGenerator = new QRCodeGenerator();
-        QRCodeData qrCodeData = qrGenerator.CreateQrCode(authenticatorUri, QRCodeGenerator.ECCLevel.Q);
-        QRCode qrCode = new QRCode(qrCodeData);
-        Bitmap qrCodeImage = qrCode.GetGraphic(20);
+        // QRCodeGenerator qrGenerator = new QRCodeGenerator();
+        // QRCodeData qrCodeData = qrGenerator.CreateQrCode(authenticatorUri, QRCodeGenerator.ECCLevel.Q);
+        // QRCode qrCode = new QRCode(qrCodeData);
+        // Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+        using var generator = new QRCodeGenerator();
+        var qr = generator.CreateQrCode(authenticatorUri, ECCLevel.H);
+
+        var info = new SKImageInfo(300, 300);
+        using var surface = SKSurface.Create(info);
+
+        var canvas = surface.Canvas;
+
+        canvas.Render(qr, 300, 300, SKColors.White, SKColors.Black);
+
+        var image = surface.Snapshot();
+        var data = image.Encode(SKEncodedImageFormat.Png, 100);
+        Stream stream = data.AsStream();
 
         using MemoryStream ms = new();
-        qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = stream.Read(buffer, 0 ,buffer.Length)) > 0) {
+            ms.Write(buffer, 0, bytesRead);
+        }
+
         string base64 = Convert.ToBase64String(ms.ToArray());
         _imageSource = string.Format("data:image/png;base64,{0}", base64);
+        // qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+        // string base64 = Convert.ToBase64String(ms.ToArray());
+        // _imageSource = string.Format("data:image/png;base64,{0}", base64);
     }
 }
