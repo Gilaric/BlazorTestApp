@@ -2,6 +2,8 @@
 
 @using Microsoft.AspNetCore.Authorization
 
+@inject AuthenticationStateProvider _authenticationStateProvider;
+
 @* @attribute [Authorize(Policy = "AuthenticatedUser")] *@
 
 <PageTitle>Home</PageTitle>
@@ -15,6 +17,18 @@
     </NotAuthorized>
 </AuthorizeView>
 
-<h1>Hello, world!</h1>
+@code {
+    // Use in unit test...
+    public bool _isAuthenticated;
 
-Welcome to your new app.
+    protected override async void OnInitialized()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+
+        var user = authState.User;
+
+        _isAuthenticated = user.Identity.IsAuthenticated;
+    }
+
+
+}
