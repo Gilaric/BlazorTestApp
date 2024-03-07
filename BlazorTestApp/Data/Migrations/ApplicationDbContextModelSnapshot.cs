@@ -94,7 +94,7 @@ namespace BlazorTestApp.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -123,10 +123,10 @@ namespace BlazorTestApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
@@ -148,10 +148,10 @@ namespace BlazorTestApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -173,7 +173,7 @@ namespace BlazorTestApp.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -213,7 +213,7 @@ namespace BlazorTestApp.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
