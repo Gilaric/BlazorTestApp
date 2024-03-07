@@ -15,10 +15,32 @@
     </ul>
 }
 
+@if(errors.Count >= 1)
+{
+    <p class="cl_FileFailed">File not uploaded</p>
+    return;
+}
+
+<ul>
+    @foreach (var file in files)
+    {
+        <li>@file.Name</li>
+    }
+</ul>
+
+@if(errors.Count == 0 && isUploaded == true)
+{
+    
+    <p class="cl_FileSuccess">Files successfully uploaded</p>
+}
+
 @code {
     private long maxFileSize = 1024 * 1024 * 5; // 5MB
     private int maxAllowedFiles = 3;
     private List<string> errors = new();
+    private bool isUploaded = false;
+    private int fileSuccessfullyUploaded = 10;
+    private List<IBrowserFile> files = new();
 
     public async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -27,10 +49,10 @@
         if (e.FileCount > maxAllowedFiles)
         {
             errors.Add($"Error: Attempting to upload {e.FileCount} files, " +
-            "but only {maxAllowedFile} files are allowed");
+            "but only {maxAllowedFiles} files are allowed");
             return;
         }
-
+        fileSuccessfullyUploaded = 0;
         foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
         {
             try
@@ -39,16 +61,22 @@
                 Path.GetRandomFileName(),
                 Path.GetExtension(file.Name));
 
-                string path = System.Environment.CurrentDirectory;
+                string path = Path.Combine("D:\\Temp\\Storage", "", newFileName);
 
                 await using FileStream fs = new(path, FileMode.Create);
                 await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                fileSuccessfullyUploaded++;
+                files.Add(file);
             }
             catch (Exception ex)
             {
                 errors.Add($"File: {file.Name} Error: {ex.Message}");
             }
         }
-
+        if (fileSuccessfullyUploaded == e.FileCount)
+        {
+            string message = "Number of files succesfully uploaded" + e.FileCount;
+            isUploaded = true;
+        }
     }
 }
