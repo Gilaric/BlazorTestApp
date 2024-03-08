@@ -75,7 +75,6 @@ namespace BlazorTestApp.Tests
             // Arrange
             using var ctx = new TestContext();
             var cut = ctx.RenderComponent<FileCreate>();
-            var inputFile = cut.FindComponent<InputFile>();
 
             // Act 
             var failElm2 = cut.Find("input");
