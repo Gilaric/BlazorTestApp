@@ -24,7 +24,7 @@
 <ul>
     @foreach (var file in files)
     {
-        <li>@file.Name</li>
+        <li>"@file.Name" successfully uploaded!</li>
     }
 </ul>
 
@@ -39,20 +39,22 @@
     private int maxAllowedFiles = 3;
     private List<string> errors = new();
     private bool isUploaded = false;
-    private int fileSuccessfullyUploaded = 10;
+    private int fileSuccessfullyUploaded = 0;
     private List<IBrowserFile> files = new();
 
     public async Task LoadFiles(InputFileChangeEventArgs e)
     {
         errors.Clear();
 
+        // If files uploaded are more than allowed.
         if (e.FileCount > maxAllowedFiles)
         {
             errors.Add($"Error: Attempting to upload {e.FileCount} files, " +
             "but only {maxAllowedFiles} files are allowed");
             return;
         }
-        fileSuccessfullyUploaded = 0;
+
+        // Go through uploaded files. 
         foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
         {
             try
@@ -65,7 +67,11 @@
 
                 await using FileStream fs = new(path, FileMode.Create);
                 await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+
+                // Increment file count on uploads.
                 fileSuccessfullyUploaded++;
+
+                // Add file to list of files.
                 files.Add(file);
             }
             catch (Exception ex)

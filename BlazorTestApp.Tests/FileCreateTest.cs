@@ -13,14 +13,15 @@ namespace BlazorTestApp.Tests
             using var ctx = new TestContext();
             InputFileContent fileToUpload = InputFileContent.CreateFromText("Text content", "Filename.txt");
             IRenderedComponent<FileCreate> cut = ctx.RenderComponent<FileCreate>();
+
             IRenderedComponent<InputFile> inputFile = cut.FindComponent<InputFile>();
 
             // Act
             inputFile.UploadFiles(fileToUpload);
+            var smallElm = cut.Find("p.cl_FileSuccess");
 
             // Assert
             Assert.NotNull(inputFile);
-            var smallElm = cut.Find("p.cl_FileSuccess");
             smallElm.MarkupMatches(@"<p class=""cl_FileSuccess"">Files successfully uploaded</p>");
         }
 
@@ -39,19 +40,20 @@ namespace BlazorTestApp.Tests
             };
 
             IRenderedComponent<FileCreate> cut = ctx.RenderComponent<FileCreate>();
+
             IRenderedComponent<InputFile> inputFile = cut.FindComponent<InputFile>();
 
             // Act
             inputFile.UploadFiles(filesToUpload);
+            var FailElm = cut.Find("p.cl_FileFailed");
+            var FailElm2 = cut.Find("h2");
 
             // Assert
             Assert.NotEmpty(filesToUpload);
             Assert.InRange(filesToUpload.Length, 4, 5);
 
-            var FailElm2 = cut.Find("h2");
             FailElm2.MarkupMatches(@"<h2>Errors</h2>");
 
-            var FailElm = cut.Find("p.cl_FileFailed");
             FailElm.MarkupMatches(@"<p class=""cl_FileFailed"">File not uploaded</p>");
         }
 
@@ -60,6 +62,7 @@ namespace BlazorTestApp.Tests
         {
             // Arrange
             using var ctx = new TestContext();
+
             IRenderedComponent<FileCreate> cut = ctx.RenderComponent<FileCreate>();
 
             // Act
@@ -74,6 +77,7 @@ namespace BlazorTestApp.Tests
         {
             // Arrange
             using var ctx = new TestContext();
+
             var cut = ctx.RenderComponent<FileCreate>();
 
             // Act 

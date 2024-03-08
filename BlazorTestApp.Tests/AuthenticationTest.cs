@@ -17,7 +17,6 @@ namespace BlazorTestApp.Tests
 
             // Assert
             cut.MarkupMatches("<div>You are logged in...</div>");
-
         }
 
         [Fact]
