@@ -1,0 +1,29 @@
+﻿@page "/ToDoPage"
+
+@using Microsoft.AspNetCore.Authorization
+
+@inject AuthenticationStateProvider _authenticationStateProvider;
+@inject HashingHandler _hashingHandler;
+
+
+<h3>ToDoPage</h3>
+
+@code {
+    public bool _isAuthenticated;
+    public string UserName;
+
+    protected override async void OnInitialized()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+
+        var user = authState.User;
+
+        UserName = user.Identity.Name;
+
+        _hashingHandler hh = new _hashingHandler();
+        string hashedString = hh.BCryptHashing("333333333");
+
+
+        bool matched = hh.BCryptVerify("333333333", hashedString);
+    }
+}

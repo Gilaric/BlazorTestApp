@@ -1,6 +1,7 @@
 using BlazorTestApp.Components;
 using BlazorTestApp.Components.Account;
 using BlazorTestApp.Data;
+using BlazorTestApp.Hashing;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<HashingHandler>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -29,6 +31,10 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
+
+    var connectionString2 = builder.Configuration.GetConnectionString("ToDoDbConnection") ?? throw new InvalidOperationException("Connection string 'ToDoDbConnection' not found.");
+    builder.Services.AddDbContext<TodoDbContext>(options =>
+    options.UseSqlServer(connectionString2));
 }
 
 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -54,6 +60,26 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser();
     });
 });
+
+
+
+builder.WebHost.UseKestrel((context, serverOptions) =>
+{
+    serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
+    .Endpoint("Https", listenOptions =>
+    {
+        listenOptions.HttpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+    });
+});
+
+string userfolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+userfolder = Path.Combine(userfolder, ".aspnet");
+userfolder = Path.Combine(userfolder, "https");
+userfolder = Path.Combine(userfolder, "Philip.pfx");
+builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Path").Value = userfolder;
+
+string? kestrelCertPassword = builder.Configuration.GetValue<string>("myKestrelPassword");
+builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelCertPassword;
 
 var app = builder.Build();
 

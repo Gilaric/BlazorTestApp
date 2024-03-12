@@ -20,6 +20,7 @@
 @code {
     // Use in unit test...
     public bool _isAuthenticated;
+    public string UserName;
 
     protected override async void OnInitialized()
     {
@@ -27,8 +28,8 @@
 
         var user = authState.User;
 
+        //UserName = user.Identity != null ? user.Identity.Name : "Ukendt!";
+
         _isAuthenticated = user.Identity.IsAuthenticated;
     }
-
-
 }
