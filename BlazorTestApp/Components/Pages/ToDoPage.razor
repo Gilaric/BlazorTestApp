@@ -101,7 +101,7 @@
     public bool ConfirmedCpr;
     public string? ConfirmeCprInput;
 
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
@@ -109,7 +109,7 @@
 
         UserName = user.Identity.Name;
 
-        // await RoleHandler.CreateUserRoles(UserName, "Admin", _serviceProvider);
+        await RoleHandler.CreateUserRoles(UserName, "Admin", _serviceProvider);
 
         // Get the CPR entity associated with the current user's username
         cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);

@@ -83,14 +83,14 @@ builder.WebHost.UseKestrel((context, serverOptions) =>
 });
 
 // Certificate stuff
-string userfolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-userfolder = Path.Combine(userfolder, ".aspnet");
-userfolder = Path.Combine(userfolder, "https");
-userfolder = Path.Combine(userfolder, "Philip.pfx");
-builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Path").Value = userfolder;
+//string userfolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+//userfolder = Path.Combine(userfolder, ".aspnet");
+//userfolder = Path.Combine(userfolder, "https");
+//userfolder = Path.Combine(userfolder, "Philip.pfx");
+//builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Path").Value = userfolder;
 
-string? kestrelCertPassword = builder.Configuration.GetValue<string>("myKestrelPassword");
-builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelCertPassword;
+//string? kestrelCertPassword = builder.Configuration.GetValue<string>("myKestrelPassword");
+//builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelCertPassword;
 
 // Data protection / Encryption
 builder.Services.AddDataProtection();

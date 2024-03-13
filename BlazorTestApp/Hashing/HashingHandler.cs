@@ -4,8 +4,19 @@ using System.Text;
 
 namespace BlazorTestApp.Hashing
 {
+
+    public enum TextOutput
+    {
+        String,
+        ByteArrayString,
+        Int,
+        UTF8String,
+        HexString
+    }
     public class HashingHandler
     {
+
+
         [Obsolete]
         public string MD5Hashing(string textToHash)
         {
@@ -77,6 +88,32 @@ namespace BlazorTestApp.Hashing
             return BCrypt.Net.BCrypt.Verify(textToHash, hashedValue, true, BCrypt.Net.HashType.SHA256);
         }
 
+        public bool BCryptVerify(string textToHash, string hashedValue, string hashType)
+        {
+            BCrypt.Net.HashType selectedHashType;
+
+            switch (hashType)
+            {
+                case "String":
+                    break;
+                case "ByteArrayString":
+                    textToHash = BitConverter.ToString(Encoding.UTF8.GetBytes(textToHash)).Replace("-", "");
+                    break;
+                case "Int":
+                    textToHash = BitConverter.ToInt32(Encoding.UTF8.GetBytes(textToHash), 0).ToString();
+                    break;
+                case "UTF8String":
+                    // Handle UTF-8 encoding if needed
+                    break;
+                case "HexString":
+                    textToHash = BitConverter.ToString(Encoding.UTF8.GetBytes(textToHash)).Replace("-", "");
+                    break;
+                default:
+                    throw new ArgumentException("Invalid hash type specified", nameof(hashType));
+            }
+
+            return BCrypt.Net.BCrypt.Verify(textToHash, hashedValue, true);
+        }
 
     }
 }
