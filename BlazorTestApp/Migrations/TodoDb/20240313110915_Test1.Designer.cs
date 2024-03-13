@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorTestApp.Migrations.TodoDb
 {
     [DbContext(typeof(TodoDbContext))]
-    [Migration("20240312114848_ToDoListMigration1")]
-    partial class ToDoListMigration1
+    [Migration("20240313110915_Test1")]
+    partial class Test1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,7 @@ namespace BlazorTestApp.Migrations.TodoDb
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CprId"));
 
                     b.Property<string>("CprNr")
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(255)");
@@ -55,7 +55,7 @@ namespace BlazorTestApp.Migrations.TodoDb
                         .HasColumnType("int");
 
                     b.Property<string>("Item")
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(4000)");
 
                     b.HasKey("ToDoListId");
 

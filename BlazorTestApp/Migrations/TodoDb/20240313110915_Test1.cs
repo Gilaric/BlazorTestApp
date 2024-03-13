@@ -5,7 +5,7 @@
 namespace BlazorTestApp.Migrations.TodoDb
 {
     /// <inheritdoc />
-    public partial class ToDoListMigration1 : Migration
+    public partial class Test1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +17,7 @@ namespace BlazorTestApp.Migrations.TodoDb
                     CprId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserName = table.Column<string>(type: "nvarchar(255)", nullable: true),
-                    CprNr = table.Column<string>(type: "nvarchar(255)", nullable: true)
+                    CprNr = table.Column<string>(type: "nvarchar(4000)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -31,7 +31,7 @@ namespace BlazorTestApp.Migrations.TodoDb
                     ToDoListId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CprId = table.Column<int>(type: "int", nullable: false),
-                    Item = table.Column<string>(type: "nvarchar(255)", nullable: true)
+                    Item = table.Column<string>(type: "nvarchar(4000)", nullable: true)
                 },
                 constraints: table =>
                 {

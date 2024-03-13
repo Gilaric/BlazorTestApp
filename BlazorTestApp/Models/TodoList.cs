@@ -11,7 +11,7 @@ namespace BlazorTestApp.Models
         [ForeignKey("Cpr")]
         public int CprId { get; set; }
 
-        [Column(TypeName = "nvarchar(255)")]
+        [Column(TypeName = "nvarchar(4000)")]
         public string? Item { get; set; }
 
         // Navigation property

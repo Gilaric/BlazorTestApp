@@ -61,7 +61,8 @@
                             {
                                 @foreach (var item in toDoListsEncrypted)
                                 {
-                                    <li>@item.Item</li> <!-- Assuming 'Item' is the property you want to display -->
+                                    string decryptValue = _asymmetricEncryptionHandler.Decrypt(item.Item);
+                                    <li>@decryptValue</li> <!-- Assuming 'Item' is the property you want to display -->
                                 }
                             }
                         </ul>
@@ -171,7 +172,6 @@
     public void SubmitToDoListItem()
     {
         string encryptValue = _asymmetricEncryptionHandler.Encrypt(ToDoListInput);
-        string decryptValue = _asymmetricEncryptionHandler.Decrypt(encryptValue);
         var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
         if (cpr != null)
         {
