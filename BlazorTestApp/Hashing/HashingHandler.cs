@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Runtime.Intrinsics.Arm;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace BlazorTestApp.Hashing
@@ -24,6 +25,17 @@ namespace BlazorTestApp.Hashing
             byte[] byteArrayTextToHash = Encoding.ASCII.GetBytes(textToHash);
 
             byte[] hashedValue = sha2.ComputeHash(byteArrayTextToHash);
+
+            return Convert.ToBase64String(hashedValue);
+        }
+
+        public string SHA3Hashing(string textToHash)
+        {
+            SHA3_256 sha3 = SHA3_256.Create();
+
+            byte[] byteArrayTextToHash = Encoding.ASCII.GetBytes(textToHash);
+
+            byte[] hashedValue = sha3.ComputeHash(byteArrayTextToHash);
 
             return Convert.ToBase64String(hashedValue);
         }

@@ -23,42 +23,58 @@ namespace BlazorTestApp.Migrations.TodoDb
 
             modelBuilder.Entity("BlazorTestApp.Models.Cpr", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CprId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CprId"));
 
                     b.Property<string>("CprNr")
-                        .IsRequired()
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("User")
-                        .IsRequired()
+                    b.Property<string>("UserName")
                         .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CprId");
 
                     b.ToTable("Cprs");
                 });
 
             modelBuilder.Entity("BlazorTestApp.Models.TodoList", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ToDoListId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ToDoListId"));
+
+                    b.Property<int>("CprId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Item")
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.HasKey("ToDoListId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("CprId");
 
                     b.ToTable("TodoLists");
+                });
+
+            modelBuilder.Entity("BlazorTestApp.Models.TodoList", b =>
+                {
+                    b.HasOne("BlazorTestApp.Models.Cpr", "Cpr")
+                        .WithMany("TodoList")
+                        .HasForeignKey("CprId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cpr");
+                });
+
+            modelBuilder.Entity("BlazorTestApp.Models.Cpr", b =>
+                {
+                    b.Navigation("TodoList");
                 });
 #pragma warning restore 612, 618
         }

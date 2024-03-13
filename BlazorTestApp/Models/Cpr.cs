@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlazorTestApp.Models
@@ -6,10 +7,14 @@ namespace BlazorTestApp.Models
     public class Cpr
     {
         [Key]
-        public int Id { get; set; }
+        public int CprId { get; set; }
+
         [Column(TypeName = "nvarchar(255)")]
-        public string? User { get; set; }
+        public string? UserName { get; set; }
+
         [Column(TypeName = "nvarchar(255)")]
         public string? CprNr { get; set; }
+
+        public ICollection<TodoList> TodoList { get; set; } = new List<TodoList>();
     }
 }

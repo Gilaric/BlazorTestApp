@@ -6,10 +6,15 @@ namespace BlazorTestApp.Models
     public class TodoList
     {
         [Key]
-        public int Id { get; set; }
-        [Column(TypeName = "bigint")]
-        public int UserId { get; set; }
+        public int ToDoListId { get; set; }
+
+        [ForeignKey("Cpr")]
+        public int CprId { get; set; }
+
         [Column(TypeName = "nvarchar(255)")]
         public string? Item { get; set; }
+
+        // Navigation property
+        public Cpr Cpr { get; set; } 
     }
 }

@@ -1,16 +1,80 @@
 ﻿@page "/ToDoPage"
 
+@using BlazorTestApp.Data
+@using BlazorTestApp.Hashing
+@using BlazorTestApp.Models
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
 
 @inject AuthenticationStateProvider _authenticationStateProvider;
 @inject HashingHandler _hashingHandler;
-
+@inject TodoDbContext _dbContext
 
 <h3>ToDoPage</h3>
 
+<AuthorizeView>
+    <Authorized>
+        <div>You are logged in...</div>
+        <div>
+            @if (HasCprNumber())
+            {
+                @if (!ConfirmedCpr)
+                {
+                    <p>CPR not confirmed</p>
+                    <InputText @bind-Value="ConfirmeCprInput" />
+                    <button type="submit" class="btn btn-primary" @onclick="SubmitConfirmCPR">Submit</button>
+                }
+                else
+                {
+                    <h2>Bruger: @UserName</h2>
+                    <h3>CPR-nr: @CprNr</h3>
+                    <div>
+                        <p>ToDoList</p>
+
+                        <InputText @bind-Value="ToDoListInput" />
+                        <button type="submit" class="btn btn-primary" @onclick="SubmitToDoListItem">Submit</button>
+                        <ul>
+                            @if (toDoLists == null)
+                            {
+
+                            }
+
+                            else
+                            {
+                                @foreach (var item in toDoLists)
+                                {
+                                    <li>@item.Item</li> <!-- Assuming 'Item' is the property you want to display -->
+                                }
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+
+            else
+            {
+            <p>User does not have a CPR number associated with their username.</p>
+            <InputText @bind-Value="CprInput" />
+            <button type="submit" class="btn btn-primary" @onclick="SubmitCpr">Submit</button>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div>You are NOT logged in...</div>
+    </NotAuthorized>
+</AuthorizeView>
+
+
 @code {
     public bool _isAuthenticated;
-    public string UserName;
+    public string? UserName;
+    public string? CprNr;
+    public List<TodoList>? toDoLists;
+    public string? CprInput;
+    public string? ToDoListInput;
+    public Cpr? cpr;
+    public bool ConfirmedCpr;
+    public string? ConfirmeCprInput;
 
     protected override async void OnInitialized()
     {
@@ -20,10 +84,91 @@
 
         UserName = user.Identity.Name;
 
-        _hashingHandler hh = new _hashingHandler();
-        string hashedString = hh.BCryptHashing("333333333");
+        // Get the CPR entity associated with the current user's username
+        cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
 
+        if (cpr != null)
+        {
+            // Populate toDoLists with the to-do items associated with the user's CPR
+            toDoLists = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
+        }
 
-        bool matched = hh.BCryptVerify("333333333", hashedString);
+        // Query the database to retrieve the CprNr associated with the current user's username
+        CprNr = _dbContext.Cprs.Where(c => c.UserName == UserName)
+                               .Select(c => c.CprNr)
+                               .FirstOrDefault();
+    }
+
+    private void SubmitCpr()
+    {
+        string hashedCpr = _hashingHandler.BCryptHashing(CprInput);
+
+        // Use the hashed value as needed
+        // For now, just displaying it
+        CprNr = hashedCpr;
+
+        cpr = new Cpr
+            {
+                CprNr = CprNr,
+                UserName = UserName,
+            };
+        _dbContext.CreateCpr(cpr);
+
+        int cprId = cpr.CprId;
+        Cpr? cprWithToDoList = _dbContext.Cprs.Include(c => c.TodoList).FirstOrDefault(c => c.CprId == cprId);
+
+        if (cpr != null)
+        {
+            // Access the TodoList items associated with the Cpr entity
+            toDoLists = cpr.TodoList.ToList();
+        }
+    }
+    private bool HasCprNumber()
+    {
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        return cpr != null;
+    }
+    public void SubmitToDoListItem()
+    {
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        if (cpr != null)
+        {
+            TodoList todoList = new TodoList
+                {
+                    Item = ToDoListInput,
+                    CprId = cpr.CprId
+                };
+            _dbContext.CreateTodoList(todoList);
+
+            // Refresh the to-do list after adding a new item
+            toDoLists = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
+        }
+        else
+        {
+            // Handle the case where the user doesn't have a CPR number associated with their username
+        }
+    }
+    public void SubmitConfirmCPR()
+    {
+        // Hash the input CPR number
+        string hashedInputCpr = _hashingHandler.BCryptHashing(ConfirmeCprInput);
+
+        // Get the currently user and match the users hash with the input
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+
+        // Verify if the hashed input CPR number matches the one stored in the database
+        bool matched = _hashingHandler.BCryptVerify(ConfirmeCprInput, cpr?.CprNr);
+
+        // Set the ConfirmedCpr flag based on the match result
+        ConfirmedCpr = matched;
+
+        if(matched)
+        {
+            ConfirmedCpr = true;
+        }
+        else
+        {
+            ConfirmedCpr = false;
+        }
     }
 }
