@@ -53,7 +53,6 @@ namespace BlazorTestApp.Encryption
             {
                 if (File.Exists("PrivateKeys.pem"))
                 {
-                    
                     _privateKey = File.ReadAllText("PrivateKeys.pem\"");
                 }
                 rsa.FromXmlString(_privateKey);
