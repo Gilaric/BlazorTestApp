@@ -44,5 +44,20 @@ namespace BlazorTestApp.Encryption
                 return decryptedDataAsString;
             }
         }
+
+        public void ExportPrivateKeys()
+        {
+            if (!File.Exists("PrivateKeys.pem"))
+            {
+                File.WriteAllText("PrivateKeys.pem", _privateKey);
+            }
+            else if (!File.Exists("PublicKeys.pem"))
+            {
+                string path = Path.Combine("C:\\Temp\\Storage", "", "PublicKeys.pem");
+                File.Create(path);
+                File.WriteAllText(path, _publicKey);
+                string encyptedLines = File.ReadAllText(path);
+            }
+        }
     }
 }

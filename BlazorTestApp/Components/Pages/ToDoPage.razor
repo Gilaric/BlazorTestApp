@@ -135,7 +135,6 @@
         //     // Add the decrypted item to the list of decrypted ToDoLists
         //     toDoListsDecrypted.Add(decryptedItem);
         // }
-
     }
 
     private void SubmitCpr()
@@ -162,19 +161,23 @@
             toDoListsEncrypted = cpr.TodoList.ToList();
         }
     }
+
     private bool HasCprNumber()
     {
         var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
         return cpr != null;
     }
+
     public void SubmitToDoListItem()
     {
+        string encryptValue = _asymmetricEncryptionHandler.Encrypt(ToDoListInput);
+        string decryptValue = _asymmetricEncryptionHandler.Decrypt(encryptValue);
         var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
         if (cpr != null)
         {
             TodoList todoList = new TodoList
                 {
-                    Item = ToDoListInput,
+                    Item = encryptValue,
                     CprId = cpr.CprId
                 };
             _dbContext.CreateTodoList(todoList);
@@ -187,6 +190,7 @@
             // Handle the case where the user doesn't have a CPR number associated with their username
         }
     }
+
     public void SubmitConfirmCPR()
     {
         // Hash the input CPR number
