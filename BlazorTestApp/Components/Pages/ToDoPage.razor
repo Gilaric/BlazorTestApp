@@ -1,20 +1,38 @@
 ﻿@page "/ToDoPage"
 
 @using BlazorTestApp.Data
+@using BlazorTestApp.Encryption
 @using BlazorTestApp.Hashing
 @using BlazorTestApp.Models
+@using BlazorTestApp.Role
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+
+@* @attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")] *@
 
 @inject AuthenticationStateProvider _authenticationStateProvider;
 @inject HashingHandler _hashingHandler;
 @inject TodoDbContext _dbContext
+@inject SymmetricEncryptionHandler _symmetricEncryptionHandler
+@inject AsymmetricEncryptionHandler _asymmetricEncryptionHandler
+@inject IServiceProvider _serviceProvider
 
 <h3>ToDoPage</h3>
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <p>YOU ARE ADMIN!</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not admin</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Admin">
     <Authorized>
         <div>You are logged in...</div>
+        <p>You are Admin</p>
         <div>
             @if (HasCprNumber())
             {
@@ -34,14 +52,14 @@
                         <InputText @bind-Value="ToDoListInput" />
                         <button type="submit" class="btn btn-primary" @onclick="SubmitToDoListItem">Submit</button>
                         <ul>
-                            @if (toDoLists == null)
+                            @if (toDoListsEncrypted == null)
                             {
-
+                                <p>Add a new item using the input field and button</p>
                             }
 
                             else
                             {
-                                @foreach (var item in toDoLists)
+                                @foreach (var item in toDoListsEncrypted)
                                 {
                                     <li>@item.Item</li> <!-- Assuming 'Item' is the property you want to display -->
                                 }
@@ -61,17 +79,23 @@
     </Authorized>
     <NotAuthorized>
         <div>You are NOT logged in...</div>
+        <div>You are NOT Admin..</div>
     </NotAuthorized>
 </AuthorizeView>
 
 
 @code {
     public bool _isAuthenticated;
+
     public string? UserName;
     public string? CprNr;
-    public List<TodoList>? toDoLists;
+
+    public List<TodoList>? toDoListsEncrypted;
+    public List<TodoList>? toDoListsDecrypted;
+
     public string? CprInput;
     public string? ToDoListInput;
+
     public Cpr? cpr;
     public bool ConfirmedCpr;
     public string? ConfirmeCprInput;
@@ -84,19 +108,34 @@
 
         UserName = user.Identity.Name;
 
+        // await RoleHandler.CreateUserRoles(UserName, "Admin", _serviceProvider);
+
         // Get the CPR entity associated with the current user's username
         cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
 
         if (cpr != null)
         {
             // Populate toDoLists with the to-do items associated with the user's CPR
-            toDoLists = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
+            toDoListsEncrypted = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
         }
 
         // Query the database to retrieve the CprNr associated with the current user's username
         CprNr = _dbContext.Cprs.Where(c => c.UserName == UserName)
                                .Select(c => c.CprNr)
                                .FirstOrDefault();
+
+        string encryptValue = _asymmetricEncryptionHandler.Encrypt("TESTING");
+        string decryptValue = _asymmetricEncryptionHandler.Decrypt(encryptValue);
+
+        // foreach (var encryptedItem in toDoListsEncrypted)
+        // {
+        //     // Decrypt the item
+        //     TodoList decryptedItem = DecryptToDoList(encryptedItem);
+
+        //     // Add the decrypted item to the list of decrypted ToDoLists
+        //     toDoListsDecrypted.Add(decryptedItem);
+        // }
+
     }
 
     private void SubmitCpr()
@@ -120,7 +159,7 @@
         if (cpr != null)
         {
             // Access the TodoList items associated with the Cpr entity
-            toDoLists = cpr.TodoList.ToList();
+            toDoListsEncrypted = cpr.TodoList.ToList();
         }
     }
     private bool HasCprNumber()
@@ -141,7 +180,7 @@
             _dbContext.CreateTodoList(todoList);
 
             // Refresh the to-do list after adding a new item
-            toDoLists = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
+            toDoListsEncrypted = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
         }
         else
         {

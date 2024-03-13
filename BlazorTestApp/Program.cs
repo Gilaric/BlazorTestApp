@@ -1,7 +1,9 @@
 using BlazorTestApp.Components;
 using BlazorTestApp.Components.Account;
 using BlazorTestApp.Data;
+using BlazorTestApp.Encryption;
 using BlazorTestApp.Hashing;
+using BlazorTestApp.Role;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +19,10 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-builder.Services.AddScoped<HashingHandler>();
+builder.Services.AddSingleton<HashingHandler>();
+builder.Services.AddSingleton<SymmetricEncryptionHandler>();
+builder.Services.AddSingleton<AsymmetricEncryptionHandler>();
+builder.Services.AddSingleton<RoleHandler>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -47,6 +52,7 @@ else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
@@ -59,9 +65,13 @@ builder.Services.AddAuthorization(options =>
     {
         policy.RequireAuthenticatedUser();
     });
+
+    // New role policy
+    options.AddPolicy("RequireAdminRole", policy =>
+    {
+        policy.RequireRole("Admin");
+    });
 });
-
-
 
 builder.WebHost.UseKestrel((context, serverOptions) =>
 {
@@ -72,6 +82,7 @@ builder.WebHost.UseKestrel((context, serverOptions) =>
     });
 });
 
+// Certificate stuff
 string userfolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 userfolder = Path.Combine(userfolder, ".aspnet");
 userfolder = Path.Combine(userfolder, "https");
@@ -80,6 +91,9 @@ builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Path").Val
 
 string? kestrelCertPassword = builder.Configuration.GetValue<string>("myKestrelPassword");
 builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelCertPassword;
+
+// Data protection / Encryption
+builder.Services.AddDataProtection();
 
 var app = builder.Build();
 
