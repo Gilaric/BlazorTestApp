@@ -17,7 +17,7 @@ namespace BlazorTestApp.Role
             }
 
             // Find user
-            Data.ApplicationUser identityUser = await userManager.FindByEmailAsync(user);
+            Data.ApplicationUser? identityUser = await userManager.FindByEmailAsync(user);
 
             // Add found user to role
             await userManager.AddToRoleAsync(identityUser, role);

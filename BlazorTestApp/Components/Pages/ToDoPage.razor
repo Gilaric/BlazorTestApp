@@ -121,7 +121,7 @@
     public string? UserName;
     public string? CprNr;
 
-    public List<string> encrypterList;
+    public List<string>? encrypterList;
     public List<TodoList>? toDoListsEncrypted;
     public List<TodoList>? toDoListsDecrypted;
 
@@ -135,11 +135,11 @@
     public bool userHasRole;
 
     private HashedFormat selectedFormat = HashedFormat.String;
-    private object result;
+    private object? result;
 
     protected override async void OnInitialized()
     {
-        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        AuthenticationState authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
         var user = authState.User;
         userHasRole = user.IsInRole("Admin");
@@ -165,8 +165,8 @@
 
     private async Task ConvertValue()
     {
-        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
-        string hashedValue = cpr.CprNr;
+        Cpr? cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        string? hashedValue = cpr?.CprNr;
 
         // Call your backend method passing the selected format
 
@@ -200,14 +200,14 @@
 
     private bool HasCprNumber()
     {
-        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        Cpr? cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
         return cpr != null;
     }
 
     public void SubmitToDoListItem()
     {
-        string encryptValue = _asymmetricEncryptionHandler.Encrypt(ToDoListInput);
-        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        string? encryptValue = _asymmetricEncryptionHandler.Encrypt(ToDoListInput);
+        Cpr? cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
         if (cpr != null)
         {
             TodoList todoList = new TodoList
@@ -228,10 +228,10 @@
         string hashedInputCpr = _hashingHandler.BCryptHashing(ConfirmeCprInput);
 
         // Get the currently user and match the users hash with the input
-        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        Cpr? cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
 
         // Verify if the hashed input CPR number matches the one stored in the database
-        bool matched = _hashingHandler.BCryptVerify(ConfirmeCprInput, cpr?.CprNr);
+        bool matched = _hashingHandler.BCryptVerify(ConfirmeCprInput, cpr.CprNr);
 
         // Set the ConfirmedCpr flag based on the match result
         ConfirmedCpr = matched;
