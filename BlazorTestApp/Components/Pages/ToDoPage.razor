@@ -68,11 +68,10 @@
                         }
                         else
                         {
-                        <p>Result: @result </p>
+                            <p>Result: @result </p>
                         }
                     </div>
-
-
+                    
                     <div>
                         <p>ToDoList</p>
 
@@ -89,7 +88,7 @@
                                 @foreach (var item in toDoListsEncrypted)
                                 {
                                     string decryptValue = _asymmetricEncryptionHandler.Decrypt(item.Item);
-                                    <li>@decryptValue</li> <!-- Assuming 'Item' is the property you want to display -->
+                                    <li>@decryptValue</li>
                                 }
                             }
                         </ul>
@@ -103,9 +102,9 @@
 
             else
             {
-            <p>User does not have a CPR number associated with their username.</p>
-            <InputText @bind-Value="CprInput" />
-            <button type="submit" class="btn btn-primary" @onclick="SubmitCpr">Submit</button>
+                <p>User does not have a CPR number associated with their username.</p>
+                <InputText @bind-Value="CprInput" />
+                <button type="submit" class="btn btn-primary" @onclick="SubmitCpr">Submit</button>
             }
         </div>
     </Authorized>
@@ -162,18 +161,6 @@
         CprNr = _dbContext.Cprs.Where(c => c.UserName == UserName)
                                .Select(c => c.CprNr)
                                .FirstOrDefault();
-
-        string encryptValue = _asymmetricEncryptionHandler.Encrypt("TESTING");
-        string decryptValue = _asymmetricEncryptionHandler.Decrypt(encryptValue);
-
-        // foreach (var encryptedItem in toDoListsEncrypted)
-        // {
-        //     // Decrypt the item
-        //     TodoList decryptedItem = DecryptToDoList(encryptedItem);
-
-        //     // Add the decrypted item to the list of decrypted ToDoLists
-        //     toDoListsDecrypted.Add(decryptedItem);
-        // }
     }
 
     private async Task ConvertValue()
@@ -232,10 +219,6 @@
 
             // Refresh the to-do list after adding a new item
             toDoListsEncrypted = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
-        }
-        else
-        {
-            // Handle the case where the user doesn't have a CPR number associated with their username
         }
     }
 
