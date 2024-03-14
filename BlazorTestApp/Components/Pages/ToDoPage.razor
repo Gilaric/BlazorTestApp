@@ -1,0 +1,247 @@
+﻿@page "/ToDoPage"
+
+@using BlazorTestApp.Data
+@using BlazorTestApp.Encryption
+@using BlazorTestApp.Hashing
+@using BlazorTestApp.Models
+@using BlazorTestApp.Role
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+
+@* @attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")] *@
+
+@inject AuthenticationStateProvider _authenticationStateProvider;
+@inject HashingHandler _hashingHandler;
+@inject TodoDbContext _dbContext
+@inject SymmetricEncryptionHandler _symmetricEncryptionHandler
+@inject AsymmetricEncryptionHandler _asymmetricEncryptionHandler
+@inject IServiceProvider _serviceProvider
+
+<h3>ToDoPage</h3>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <p>YOU ARE ADMIN!</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not admin</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <div>You are logged in...</div>
+        <p>You are Admin</p>
+        <div>
+            @if (HasCprNumber())
+            {
+                @if (!ConfirmedCpr)
+                {
+                    <p>CPR not confirmed</p>
+                    <InputText @bind-Value="ConfirmeCprInput" />
+                    <button type="submit" class="btn btn-primary" @onclick="SubmitConfirmCPR">Submit</button>
+                }
+                else
+                {
+                    <h2>Bruger: @UserName</h2>
+
+                    <h3>Choose Conversion Format</h3>
+
+                    <select @bind="selectedFormat">
+                        @foreach (HashedFormat format in Enum.GetValues(typeof(HashedFormat)))
+                        {
+                            <option value="@format">@format.ToString()</option>
+                        }
+                    </select>
+
+                    <button @onclick="ConvertValue">Convert</button>
+
+                    <div>
+                        Result: @result
+                    </div>
+
+                    <div>
+                        <p>ToDoList</p>
+
+                        <InputText @bind-Value="ToDoListInput" />
+                        <button type="submit" class="btn btn-primary" @onclick="SubmitToDoListItem">Submit</button>
+                        <ul>
+                            @if (toDoListsEncrypted == null)
+                            {
+                                <p>Add a new item using the input field and button</p>
+                            }
+
+                            else
+                            {
+                                @foreach (var item in toDoListsEncrypted)
+                                {
+                                    string decryptValue = _asymmetricEncryptionHandler.Decrypt(item.Item);
+                                    <li>@decryptValue</li> <!-- Assuming 'Item' is the property you want to display -->
+                                }
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+
+            else
+            {
+            <p>User does not have a CPR number associated with their username.</p>
+            <InputText @bind-Value="CprInput" />
+            <button type="submit" class="btn btn-primary" @onclick="SubmitCpr">Submit</button>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div>You are NOT logged in...</div>
+        <div>You are NOT Admin..</div>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    public bool _isAuthenticated;
+
+    public string? UserName;
+    public string? CprNr;
+
+    public List<TodoList>? toDoListsEncrypted;
+    public List<TodoList>? toDoListsDecrypted;
+
+    public string? CprInput;
+    public string? ToDoListInput;
+
+    public Cpr? cpr;
+    public bool ConfirmedCpr;
+    public string? ConfirmeCprInput;
+
+
+    private HashedFormat selectedFormat = HashedFormat.String;
+    private object result;
+
+    private async Task ConvertValue()
+    {
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        string hashedValue = cpr.CprNr;
+
+
+        // Call your backend method passing the selected format
+
+        result = _hashingHandler.ConvertValue(hashedValue, selectedFormat);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+
+        var user = authState.User;
+
+        UserName = user.Identity.Name;
+
+        await RoleHandler.CreateUserRoles(UserName, "Admin", _serviceProvider);
+
+        // Get the CPR entity associated with the current user's username
+        cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+
+        if (cpr != null)
+        {
+            // Populate toDoLists with the to-do items associated with the user's CPR
+            toDoListsEncrypted = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
+        }
+
+        // Query the database to retrieve the CprNr associated with the current user's username
+        CprNr = _dbContext.Cprs.Where(c => c.UserName == UserName)
+                               .Select(c => c.CprNr)
+                               .FirstOrDefault();
+
+        string encryptValue = _asymmetricEncryptionHandler.Encrypt("TESTING");
+        string decryptValue = _asymmetricEncryptionHandler.Decrypt(encryptValue);
+
+        // foreach (var encryptedItem in toDoListsEncrypted)
+        // {
+        //     // Decrypt the item
+        //     TodoList decryptedItem = DecryptToDoList(encryptedItem);
+
+        //     // Add the decrypted item to the list of decrypted ToDoLists
+        //     toDoListsDecrypted.Add(decryptedItem);
+        // }
+    }
+
+    private void SubmitCpr()
+    {
+        string hashedCpr = _hashingHandler.BCryptHashing(CprInput);
+
+        // Use the hashed value as needed
+        // For now, just displaying it
+        CprNr = hashedCpr;
+
+        cpr = new Cpr
+            {
+                CprNr = CprNr,
+                UserName = UserName,
+            };
+        _dbContext.CreateCpr(cpr);
+
+        int cprId = cpr.CprId;
+        Cpr? cprWithToDoList = _dbContext.Cprs.Include(c => c.TodoList).FirstOrDefault(c => c.CprId == cprId);
+
+        if (cpr != null)
+        {
+            // Access the TodoList items associated with the Cpr entity
+            toDoListsEncrypted = cpr.TodoList.ToList();
+        }
+    }
+
+    private bool HasCprNumber()
+    {
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        return cpr != null;
+    }
+
+    public void SubmitToDoListItem()
+    {
+        string encryptValue = _asymmetricEncryptionHandler.Encrypt(ToDoListInput);
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        if (cpr != null)
+        {
+            TodoList todoList = new TodoList
+                {
+                    Item = encryptValue,
+                    CprId = cpr.CprId
+                };
+            _dbContext.CreateTodoList(todoList);
+
+            // Refresh the to-do list after adding a new item
+            toDoListsEncrypted = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
+        }
+        else
+        {
+            // Handle the case where the user doesn't have a CPR number associated with their username
+        }
+    }
+
+    public void SubmitConfirmCPR()
+    {
+        // Hash the input CPR number
+        string hashedInputCpr = _hashingHandler.BCryptHashing(ConfirmeCprInput);
+
+        // Get the currently user and match the users hash with the input
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+
+        // Verify if the hashed input CPR number matches the one stored in the database
+        bool matched = _hashingHandler.BCryptVerify(ConfirmeCprInput, cpr?.CprNr);
+
+        // Set the ConfirmedCpr flag based on the match result
+        ConfirmedCpr = matched;
+
+        if(matched)
+        {
+            ConfirmedCpr = true;
+        }
+        else
+        {
+            ConfirmedCpr = false;
+        }
+    }
+}
