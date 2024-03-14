@@ -29,10 +29,9 @@
     </NotAuthorized>
 </AuthorizeView>
 
-<AuthorizeView Roles="Admin">
+<AuthorizeView>
     <Authorized>
         <div>You are logged in...</div>
-        <p>You are Admin</p>
         <div>
             @if (HasCprNumber())
             {
@@ -46,6 +45,16 @@
                 {
                     <h2>Bruger: @UserName</h2>
                     <h3>CPR-nr: @CprNr</h3>
+                    <select class="form-control" @bind="SelectedEncrypter">
+
+                        <option value=""></option>
+@*                         @foreach (var encrypter in encrypterList)
+                        {
+                            <option value="@encrypter"> @encrypter </option>
+                        } *@
+                    </select>
+                    <p>@SelectedEncrypter</p>
+
                     <div>
                         <p>ToDoList</p>
 
@@ -66,6 +75,10 @@
                                 }
                             }
                         </ul>
+                        @if (userHasRole)
+                        {
+                            <button type="button" class="btn btn-primary" @onclick="RemoveToDoListItem"></button>
+                        }
                     </div>
                 }
             }
@@ -91,25 +104,29 @@
     public string? UserName;
     public string? CprNr;
 
+    public List<string> encrypterList;
     public List<TodoList>? toDoListsEncrypted;
     public List<TodoList>? toDoListsDecrypted;
 
     public string? CprInput;
     public string? ToDoListInput;
+    public string? SelectedEncrypter;
 
     public Cpr? cpr;
     public bool ConfirmedCpr;
     public string? ConfirmeCprInput;
+    public bool userHasRole;
 
     protected override async void OnInitialized()
     {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
         var user = authState.User;
+        userHasRole = user.IsInRole("Admin");
 
         UserName = user.Identity.Name;
 
-        // await RoleHandler.CreateUserRoles(UserName, "Admin", _serviceProvider);
+        await RoleHandler.CreateUserRoles(UserName, "Admin", _serviceProvider);
 
         // Get the CPR entity associated with the current user's username
         cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
@@ -213,5 +230,13 @@
         {
             ConfirmedCpr = false;
         }
+    }
+
+    public void RemoveToDoListItem()
+    {
+        // Remove the last item from the to-do list
+        toDoListsEncrypted.RemoveAt(toDoListsEncrypted.Count - 1);
+        _dbContext.RemoveLast();
+        toDoListsEncrypted = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
     }
 }

@@ -12,7 +12,7 @@ namespace BlazorTestApp.Encryption
 
         public AsymmetricEncryptionHandler()
         {
-            string privateKeyPath = Path.Combine("PrivateKey.pem");
+            string privateKeyPath = Path.Combine("PrivateKeys.pem");
             string publicKeyPath = Path.Combine("PublicKeys.pem");
             using (RSA rsa = RSA.Create())
             {
@@ -53,7 +53,7 @@ namespace BlazorTestApp.Encryption
             {
                 if (File.Exists("PrivateKeys.pem"))
                 {
-                    _privateKey = File.ReadAllText("PrivateKeys.pem\"");
+                    _privateKey = File.ReadAllText("PrivateKeys.pem");
                 }
                 rsa.FromXmlString(_privateKey);
 

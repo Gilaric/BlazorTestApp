@@ -22,7 +22,5 @@ namespace BlazorTestApp.Role
             // Add found user to role
             await userManager.AddToRoleAsync(identityUser, role);
         }
-
-        
     }
 }
