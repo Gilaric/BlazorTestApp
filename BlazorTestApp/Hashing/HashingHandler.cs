@@ -6,6 +6,14 @@ namespace BlazorTestApp.Hashing
 {
     public class HashingHandler
     {
+        public enum HashedFormat
+        {
+            String,
+            ByteArray,
+            Int,
+            UTFString,
+            HexString
+        }
         [Obsolete]
         public string MD5Hashing(string textToHash)
         {
@@ -77,6 +85,25 @@ namespace BlazorTestApp.Hashing
             return BCrypt.Net.BCrypt.Verify(textToHash, hashedValue, true, BCrypt.Net.HashType.SHA256);
         }
 
+        public object ConvertValue(string hashedValue, HashedFormat format)
+        {
+            byte[] byteValue = Encoding.UTF8.GetBytes(hashedValue);
 
+            switch (format)
+            {
+                case HashedFormat.String:
+                    return Convert.ToBase64String(byteValue);
+                case HashedFormat.ByteArray:
+                    return byteValue;
+                case HashedFormat.Int:
+                    return BitConverter.ToInt32(byteValue, 0);
+                case HashedFormat.HexString:
+                    return BitConverter.ToString(byteValue).Replace("-", "");
+                case HashedFormat.UTFString:
+                    return Encoding.UTF8.GetString(byteValue);
+                default:
+                    throw new ArgumentException("Du skal vælge et format");
+            }
+        }
     }
 }

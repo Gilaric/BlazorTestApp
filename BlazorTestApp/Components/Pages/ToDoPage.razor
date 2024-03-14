@@ -8,6 +8,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+@using static BlazorTestApp.Hashing.HashingHandler
 
 @* @attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")] *@
 
@@ -45,15 +46,32 @@
                 {
                     <h2>Bruger: @UserName</h2>
                     <h3>CPR-nr: @CprNr</h3>
-                    <select class="form-control" @bind="SelectedEncrypter">
+                    <h3>Choose Conversion Format</h3>
 
-                        <option value=""></option>
-@*                         @foreach (var encrypter in encrypterList)
+                    <select @bind="selectedFormat">
+                        @foreach (HashedFormat format in Enum.GetValues(typeof(HashedFormat)))
                         {
-                            <option value="@encrypter"> @encrypter </option>
-                        } *@
+                            <option value="@format">@format.ToString()</option>
+                        }
                     </select>
-                    <p>@SelectedEncrypter</p>
+
+                    <button @onclick="ConvertValue">Convert</button>
+
+                    <div>
+                        @if(selectedFormat == HashedFormat.ByteArray && selectedFormat != null && result != null)
+                        {
+                            <p>Result: </p>
+                            foreach (var item in (byte[])result)
+                            {
+                                @item
+                            }
+                        }
+                        else
+                        {
+                        <p>Result: @result </p>
+                        }
+                    </div>
+
 
                     <div>
                         <p>ToDoList</p>
@@ -117,6 +135,9 @@
     public string? ConfirmeCprInput;
     public bool userHasRole;
 
+    private HashedFormat selectedFormat = HashedFormat.String;
+    private object result;
+
     protected override async void OnInitialized()
     {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
@@ -153,6 +174,16 @@
         //     // Add the decrypted item to the list of decrypted ToDoLists
         //     toDoListsDecrypted.Add(decryptedItem);
         // }
+    }
+
+    private async Task ConvertValue()
+    {
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        string hashedValue = cpr.CprNr;
+
+        // Call your backend method passing the selected format
+
+        result = _hashingHandler.ConvertValue(hashedValue, selectedFormat);
     }
 
     private void SubmitCpr()
