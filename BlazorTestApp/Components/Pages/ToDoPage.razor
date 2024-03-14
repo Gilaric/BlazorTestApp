@@ -45,7 +45,22 @@
                 else
                 {
                     <h2>Bruger: @UserName</h2>
-                    <h3>CPR-nr: @CprNr</h3>
+
+                    <h3>Choose Conversion Format</h3>
+
+                    <select @bind="selectedFormat">
+                        @foreach (HashedFormat format in Enum.GetValues(typeof(HashedFormat)))
+                        {
+                            <option value="@format">@format.ToString()</option>
+                        }
+                    </select>
+
+                    <button @onclick="ConvertValue">Convert</button>
+
+                    <div>
+                        Result: @result
+                    </div>
+
                     <div>
                         <p>ToDoList</p>
 
@@ -100,6 +115,21 @@
     public Cpr? cpr;
     public bool ConfirmedCpr;
     public string? ConfirmeCprInput;
+
+
+    private HashedFormat selectedFormat = HashedFormat.String;
+    private object result;
+
+    private async Task ConvertValue()
+    {
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        string hashedValue = cpr.CprNr;
+
+
+        // Call your backend method passing the selected format
+
+        result = _hashingHandler.ConvertValue(hashedValue, selectedFormat);
+    }
 
     protected override async Task OnInitializedAsync()
     {

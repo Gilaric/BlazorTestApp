@@ -5,12 +5,12 @@ using System.Text;
 namespace BlazorTestApp.Hashing
 {
 
-    public enum TextOutput
+    public enum HashedFormat
     {
         String,
-        ByteArrayString,
+        ByteArray,
         Int,
-        UTF8String,
+        UTFString,
         HexString
     }
     public class HashingHandler
@@ -88,32 +88,25 @@ namespace BlazorTestApp.Hashing
             return BCrypt.Net.BCrypt.Verify(textToHash, hashedValue, true, BCrypt.Net.HashType.SHA256);
         }
 
-        public bool BCryptVerify(string textToHash, string hashedValue, string hashType)
+        public object ConvertValue(string hashedValue, HashedFormat format)
         {
-            BCrypt.Net.HashType selectedHashType;
+            byte[] byteValue = Encoding.UTF8.GetBytes(hashedValue);
 
-            switch (hashType)
+            switch (format)
             {
-                case "String":
-                    break;
-                case "ByteArrayString":
-                    textToHash = BitConverter.ToString(Encoding.UTF8.GetBytes(textToHash)).Replace("-", "");
-                    break;
-                case "Int":
-                    textToHash = BitConverter.ToInt32(Encoding.UTF8.GetBytes(textToHash), 0).ToString();
-                    break;
-                case "UTF8String":
-                    // Handle UTF-8 encoding if needed
-                    break;
-                case "HexString":
-                    textToHash = BitConverter.ToString(Encoding.UTF8.GetBytes(textToHash)).Replace("-", "");
-                    break;
+                case HashedFormat.String:
+                    return Convert.ToBase64String(byteValue);
+                case HashedFormat.ByteArray:
+                    return byteValue;
+                case HashedFormat.Int:
+                    return BitConverter.ToInt32(byteValue, 0);
+                case HashedFormat.HexString:
+                    return BitConverter.ToString(byteValue).Replace("-", "");
+                case HashedFormat.UTFString:
+                    return Encoding.UTF8.GetString(byteValue);
                 default:
-                    throw new ArgumentException("Invalid hash type specified", nameof(hashType));
+                    throw new ArgumentException("Du skal vælge ");
             }
-
-            return BCrypt.Net.BCrypt.Verify(textToHash, hashedValue, true);
         }
-
     }
 }
