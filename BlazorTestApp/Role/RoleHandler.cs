@@ -9,15 +9,23 @@ namespace BlazorTestApp.Role
         {
             var roleManager = _serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = _serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            Data.ApplicationUser? identityUser;
 
             var userRoleCheck = await roleManager.RoleExistsAsync(role);
+
             if (!userRoleCheck)
             {
                 await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            // Find user
-            Data.ApplicationUser? identityUser = await userManager.FindByEmailAsync(user);
+            if (user == null)
+            {
+                return;
+            }
+            else
+            {
+                identityUser = await userManager.FindByEmailAsync(user);
+            }
 
             // Add found user to role
             await userManager.AddToRoleAsync(identityUser, role);

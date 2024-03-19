@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.ResponseCompression;
+using BlazorTestApp.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +75,12 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+          new[] { "application/octet-stream" });
+});
+
 builder.WebHost.UseKestrel((context, serverOptions) =>
 {
     serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
@@ -114,8 +122,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
+// Add the following line to enable response compression middleware
+app.UseResponseCompression();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapHub<ChatHub>("/chathub");
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
