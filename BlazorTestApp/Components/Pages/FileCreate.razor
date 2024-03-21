@@ -62,7 +62,7 @@
                 Path.GetRandomFileName(),
                 Path.GetExtension(file.Name));
 
-                string path = Path.Combine("D:\\Temp\\Storage", "", newFileName);
+                string path = Path.Combine("C:\\Users\\pkgt\\C#_Tests", "", newFileName);
 
                 await using FileStream fs = new(path, FileMode.Create);
                 await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
