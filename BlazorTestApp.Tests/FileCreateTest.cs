@@ -11,17 +11,24 @@ namespace BlazorTestApp.Tests
         {
             // Arrange
             using var ctx = new TestContext();
-            InputFileContent fileToUpload = InputFileContent.CreateFromText("Text content", "Filename.txt");
+            InputFileContent[] filesToUpload = new InputFileContent[]
+            {
+                InputFileContent.CreateFromText("Text content 1", "File1.txt"),
+                InputFileContent.CreateFromText("Text content 2", "File2.txt")
+            };
+
             IRenderedComponent<FileCreate> cut = ctx.RenderComponent<FileCreate>();
 
             IRenderedComponent<InputFile> inputFile = cut.FindComponent<InputFile>();
 
             // Act
-            inputFile.UploadFiles(fileToUpload);
+            inputFile.UploadFiles(filesToUpload);
+
             var smallElm = cut.Find("p.cl_FileSuccess");
 
             // Assert
             Assert.NotNull(inputFile);
+            Assert.InRange(filesToUpload.Length, 1, 2);
             smallElm.MarkupMatches(@"<p class=""cl_FileSuccess"">Files successfully uploaded</p>");
         }
 

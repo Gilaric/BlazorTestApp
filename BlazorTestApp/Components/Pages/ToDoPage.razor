@@ -8,6 +8,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+@using static BlazorTestApp.Hashing.HashingHandler
 
 @* @attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")] *@
 
@@ -29,10 +30,9 @@
     </NotAuthorized>
 </AuthorizeView>
 
-<AuthorizeView Roles="Admin">
+<AuthorizeView>
     <Authorized>
         <div>You are logged in...</div>
-        <p>You are Admin</p>
         <div>
             @if (HasCprNumber())
             {
@@ -45,22 +45,7 @@
                 else
                 {
                     <h2>Bruger: @UserName</h2>
-
-                    <h3>Choose Conversion Format</h3>
-
-                    <select @bind="selectedFormat">
-                        @foreach (HashedFormat format in Enum.GetValues(typeof(HashedFormat)))
-                        {
-                            <option value="@format">@format.ToString()</option>
-                        }
-                    </select>
-
-                    <button @onclick="ConvertValue">Convert</button>
-
-                    <div>
-                        Result: @result
-                    </div>
-
+                    <h3>CPR-nr: @CprNr</h3>
                     <div>
                         <p>ToDoList</p>
 
@@ -77,19 +62,23 @@
                                 @foreach (var item in toDoListsEncrypted)
                                 {
                                     string decryptValue = _asymmetricEncryptionHandler.Decrypt(item.Item);
-                                    <li>@decryptValue</li> <!-- Assuming 'Item' is the property you want to display -->
+                                    <li>@decryptValue</li>
                                 }
                             }
                         </ul>
+                        @if (userHasRole)
+                        {
+                            <button type="button" class="btn btn-primary" @onclick="RemoveToDoListItem"></button>
+                        }
                     </div>
                 }
             }
 
             else
             {
-            <p>User does not have a CPR number associated with their username.</p>
-            <InputText @bind-Value="CprInput" />
-            <button type="submit" class="btn btn-primary" @onclick="SubmitCpr">Submit</button>
+                <p>User does not have a CPR number associated with their username.</p>
+                <InputText @bind-Value="CprInput" />
+                <button type="submit" class="btn btn-primary" @onclick="SubmitCpr">Submit</button>
             }
         </div>
     </Authorized>
@@ -106,19 +95,21 @@
     public string? UserName;
     public string? CprNr;
 
+    public List<string>? encrypterList;
     public List<TodoList>? toDoListsEncrypted;
     public List<TodoList>? toDoListsDecrypted;
 
     public string? CprInput;
     public string? ToDoListInput;
+    public string? SelectedEncrypter;
 
     public Cpr? cpr;
     public bool ConfirmedCpr;
     public string? ConfirmeCprInput;
-
+    public bool userHasRole;
 
     private HashedFormat selectedFormat = HashedFormat.String;
-    private object result;
+    private object? result;
 
     private async Task ConvertValue()
     {
@@ -133,9 +124,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        AuthenticationState authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
         var user = authState.User;
+        userHasRole = user.IsInRole("Admin");
 
         UserName = user.Identity.Name;
 
@@ -154,18 +146,6 @@
         CprNr = _dbContext.Cprs.Where(c => c.UserName == UserName)
                                .Select(c => c.CprNr)
                                .FirstOrDefault();
-
-        string encryptValue = _asymmetricEncryptionHandler.Encrypt("TESTING");
-        string decryptValue = _asymmetricEncryptionHandler.Decrypt(encryptValue);
-
-        // foreach (var encryptedItem in toDoListsEncrypted)
-        // {
-        //     // Decrypt the item
-        //     TodoList decryptedItem = DecryptToDoList(encryptedItem);
-
-        //     // Add the decrypted item to the list of decrypted ToDoLists
-        //     toDoListsDecrypted.Add(decryptedItem);
-        // }
     }
 
     private void SubmitCpr()
@@ -195,14 +175,14 @@
 
     private bool HasCprNumber()
     {
-        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        Cpr? cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
         return cpr != null;
     }
 
     public void SubmitToDoListItem()
     {
-        string encryptValue = _asymmetricEncryptionHandler.Encrypt(ToDoListInput);
-        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        string? encryptValue = _asymmetricEncryptionHandler.Encrypt(ToDoListInput);
+        Cpr? cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
         if (cpr != null)
         {
             TodoList todoList = new TodoList
@@ -215,10 +195,6 @@
             // Refresh the to-do list after adding a new item
             toDoListsEncrypted = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
         }
-        else
-        {
-            // Handle the case where the user doesn't have a CPR number associated with their username
-        }
     }
 
     public void SubmitConfirmCPR()
@@ -227,10 +203,10 @@
         string hashedInputCpr = _hashingHandler.BCryptHashing(ConfirmeCprInput);
 
         // Get the currently user and match the users hash with the input
-        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        Cpr? cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
 
         // Verify if the hashed input CPR number matches the one stored in the database
-        bool matched = _hashingHandler.BCryptVerify(ConfirmeCprInput, cpr?.CprNr);
+        bool matched = _hashingHandler.BCryptVerify(ConfirmeCprInput, cpr.CprNr);
 
         // Set the ConfirmedCpr flag based on the match result
         ConfirmedCpr = matched;
@@ -243,5 +219,13 @@
         {
             ConfirmedCpr = false;
         }
+    }
+
+    public void RemoveToDoListItem()
+    {
+        // Remove the last item from the to-do list
+        toDoListsEncrypted.RemoveAt(toDoListsEncrypted.Count - 1);
+        _dbContext.RemoveLast();
+        toDoListsEncrypted = _dbContext.TodoLists.Where(t => t.CprId == cpr.CprId).ToList();
     }
 }
