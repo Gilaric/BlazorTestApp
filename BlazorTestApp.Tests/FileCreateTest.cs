@@ -12,11 +12,11 @@ namespace BlazorTestApp.Tests
         {
             // Arrange
             using var ctx = new TestContext();
-            InputFileContent[] filesToUpload = new InputFileContent[]
-            {
+            InputFileContent[] filesToUpload =
+            [
                 InputFileContent.CreateFromText("Text content 1", "File1.txt"),
                 InputFileContent.CreateFromText("Text content 2", "File2.txt")
-            };
+            ];
 
             IRenderedComponent<FileCreate> cut = ctx.RenderComponent<FileCreate>();
 
@@ -38,14 +38,14 @@ namespace BlazorTestApp.Tests
         {
             // Arrange
             using var ctx = new TestContext();
-            InputFileContent[] filesToUpload = new InputFileContent[]
-            {
+            InputFileContent[] filesToUpload =
+            [
                 InputFileContent.CreateFromText("Text content 1", "File1.txt"),
                 InputFileContent.CreateFromText("Text content 2", "File2.txt"),
                 InputFileContent.CreateFromText("Text content 3", "File3.txt"),
                 InputFileContent.CreateFromText("Text content 4", "File4.txt"),
                 InputFileContent.CreateFromText("Text content 5", "File5.txt")
-            };
+            ];
 
             IRenderedComponent<FileCreate> cut = ctx.RenderComponent<FileCreate>();
 
