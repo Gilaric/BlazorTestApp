@@ -45,7 +45,11 @@
                 else
                 {
                     <h2>Bruger: @UserName</h2>
+<<<<<<< HEAD
                     <h3>CPR-nr: @CprNr</h3>
+=======
+
+>>>>>>> master
                     <h3>Choose Conversion Format</h3>
 
                     <select @bind="selectedFormat">
@@ -58,6 +62,7 @@
                     <button @onclick="ConvertValue">Convert</button>
 
                     <div>
+<<<<<<< HEAD
                         @if(selectedFormat == HashedFormat.ByteArray && selectedFormat != null && result != null)
                         {
                             <p>Result: </p>
@@ -72,6 +77,11 @@
                         }
                     </div>
                     
+=======
+                        Result: @result
+                    </div>
+
+>>>>>>> master
                     <div>
                         <p>ToDoList</p>
 
@@ -137,7 +147,22 @@
     private HashedFormat selectedFormat = HashedFormat.String;
     private object? result;
 
-    protected override async void OnInitialized()
+
+    private HashedFormat selectedFormat = HashedFormat.String;
+    private object result;
+
+    private async Task ConvertValue()
+    {
+        var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
+        string hashedValue = cpr.CprNr;
+
+
+        // Call your backend method passing the selected format
+
+        result = _hashingHandler.ConvertValue(hashedValue, selectedFormat);
+    }
+
+    protected override async Task OnInitializedAsync()
     {
         AuthenticationState authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
