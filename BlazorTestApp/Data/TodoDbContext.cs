@@ -29,6 +29,21 @@ namespace BlazorTestApp.Data
             return TodoLists.FirstOrDefault(t => t.ToDoListId == id);
         }
 
+        public void RemoveLast()
+        {
+            // Retrieve the last item from TodoLists
+            var lastItem = TodoLists.OrderBy(t => t.ToDoListId).LastOrDefault();
+
+            // Remove the last item if it exists
+            if (lastItem != null)
+            {
+                TodoLists.Remove(lastItem);
+
+                // Save changes to the database
+                SaveChanges();
+            }
+        }
+
         // Method to find Cpr by ID
         public Cpr? FindCprById(int id)
         {

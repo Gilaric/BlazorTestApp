@@ -5,7 +5,7 @@
 namespace BlazorTestApp.Migrations.TodoDb
 {
     /// <inheritdoc />
-    public partial class TODO : Migration
+    public partial class TodoMigration1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

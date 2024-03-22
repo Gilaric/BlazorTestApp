@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
 using BlazorTestApp.Components.Pages;
 using Microsoft.AspNetCore.Components.Forms;
+using Bunit;
 
 namespace BlazorTestApp.Tests
 {
@@ -11,17 +12,24 @@ namespace BlazorTestApp.Tests
         {
             // Arrange
             using var ctx = new TestContext();
-            InputFileContent fileToUpload = InputFileContent.CreateFromText("Text content", "Filename.txt");
+            InputFileContent[] filesToUpload =
+            [
+                InputFileContent.CreateFromText("Text content 1", "File1.txt"),
+                InputFileContent.CreateFromText("Text content 2", "File2.txt")
+            ];
+
             IRenderedComponent<FileCreate> cut = ctx.RenderComponent<FileCreate>();
 
             IRenderedComponent<InputFile> inputFile = cut.FindComponent<InputFile>();
 
             // Act
-            inputFile.UploadFiles(fileToUpload);
+            inputFile.UploadFiles(filesToUpload);
+
             var smallElm = cut.Find("p.cl_FileSuccess");
 
             // Assert
             Assert.NotNull(inputFile);
+            Assert.InRange(filesToUpload.Length, 1, 2);
             smallElm.MarkupMatches(@"<p class=""cl_FileSuccess"">Files successfully uploaded</p>");
         }
 
@@ -30,14 +38,14 @@ namespace BlazorTestApp.Tests
         {
             // Arrange
             using var ctx = new TestContext();
-            InputFileContent[] filesToUpload = new InputFileContent[]
-            {
+            InputFileContent[] filesToUpload =
+            [
                 InputFileContent.CreateFromText("Text content 1", "File1.txt"),
                 InputFileContent.CreateFromText("Text content 2", "File2.txt"),
                 InputFileContent.CreateFromText("Text content 3", "File3.txt"),
                 InputFileContent.CreateFromText("Text content 4", "File4.txt"),
                 InputFileContent.CreateFromText("Text content 5", "File5.txt")
-            };
+            ];
 
             IRenderedComponent<FileCreate> cut = ctx.RenderComponent<FileCreate>();
 

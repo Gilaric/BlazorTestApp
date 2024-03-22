@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorTestApp.Migrations.TodoDb
 {
     [DbContext(typeof(TodoDbContext))]
-    [Migration("20240313115822_TODO")]
-    partial class TODO
+    [Migration("20240321075425_TodoMigration1")]
+    partial class TodoMigration1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

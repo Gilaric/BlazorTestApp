@@ -15,8 +15,6 @@ namespace BlazorTestApp.Hashing
     }
     public class HashingHandler
     {
-
-
         [Obsolete]
         public string MD5Hashing(string textToHash)
         {
@@ -105,7 +103,7 @@ namespace BlazorTestApp.Hashing
                 case HashedFormat.UTFString:
                     return Encoding.UTF8.GetString(byteValue);
                 default:
-                    throw new ArgumentException("Du skal vælge ");
+                    throw new ArgumentException("Du skal vælge et format");
             }
         }
     }
