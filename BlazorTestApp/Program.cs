@@ -61,24 +61,20 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AuthenticatedUser", policy =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AuthenticatedUser", policy =>
     {
         policy.RequireAuthenticatedUser();
-    });
-
-    // New role policy
-    options.AddPolicy("RequireAdminRole", policy =>
+    })
+    .AddPolicy("RequireAdminRole", policy =>
     {
         policy.RequireRole("Admin");
     });
-});
 
 builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-          new[] { "application/octet-stream" });
+          ["application/octet-stream"]);
 });
 
 builder.WebHost.UseKestrel((context, serverOptions) =>
