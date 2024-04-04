@@ -45,43 +45,7 @@
                 else
                 {
                     <h2>Bruger: @UserName</h2>
-<<<<<<< HEAD
                     <h3>CPR-nr: @CprNr</h3>
-=======
-
->>>>>>> master
-                    <h3>Choose Conversion Format</h3>
-
-                    <select @bind="selectedFormat">
-                        @foreach (HashedFormat format in Enum.GetValues(typeof(HashedFormat)))
-                        {
-                            <option value="@format">@format.ToString()</option>
-                        }
-                    </select>
-
-                    <button @onclick="ConvertValue">Convert</button>
-
-                    <div>
-<<<<<<< HEAD
-                        @if(selectedFormat == HashedFormat.ByteArray && selectedFormat != null && result != null)
-                        {
-                            <p>Result: </p>
-                            foreach (var item in (byte[])result)
-                            {
-                                @item
-                            }
-                        }
-                        else
-                        {
-                            <p>Result: @result </p>
-                        }
-                    </div>
-                    
-=======
-                        Result: @result
-                    </div>
-
->>>>>>> master
                     <div>
                         <p>ToDoList</p>
 
@@ -147,10 +111,6 @@
     private HashedFormat selectedFormat = HashedFormat.String;
     private object? result;
 
-
-    private HashedFormat selectedFormat = HashedFormat.String;
-    private object result;
-
     private async Task ConvertValue()
     {
         var cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
@@ -186,16 +146,6 @@
         CprNr = _dbContext.Cprs.Where(c => c.UserName == UserName)
                                .Select(c => c.CprNr)
                                .FirstOrDefault();
-    }
-
-    private async Task ConvertValue()
-    {
-        Cpr? cpr = _dbContext.Cprs.FirstOrDefault(c => c.UserName == UserName);
-        string? hashedValue = cpr?.CprNr;
-
-        // Call your backend method passing the selected format
-
-        result = _hashingHandler.ConvertValue(hashedValue, selectedFormat);
     }
 
     private void SubmitCpr()
