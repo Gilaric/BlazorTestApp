@@ -15,36 +15,32 @@ namespace BlazorTestApp.Hashing
     }
     public class HashingHandler
     {
-        [Obsolete]
+        [Obsolete("MD5 was not designed for password security")]
         public string MD5Hashing(string textToHash)
         {
-            MD5 mD5 = MD5.Create();
 
             byte[] byteArrayTextToHash = Encoding.ASCII.GetBytes(textToHash);
 
-            byte[] hashedValue = mD5.ComputeHash(byteArrayTextToHash);
+            byte[] hashedValue = MD5.HashData(byteArrayTextToHash);
 
             return Convert.ToBase64String(hashedValue);
         }
 
         public string SHA2Hashing(string textToHash)
         {
-            SHA256 sha2 = SHA256.Create();
 
             byte[] byteArrayTextToHash = Encoding.ASCII.GetBytes(textToHash);
 
-            byte[] hashedValue = sha2.ComputeHash(byteArrayTextToHash);
+            byte[] hashedValue = SHA256.HashData(byteArrayTextToHash);
 
             return Convert.ToBase64String(hashedValue);
         }
 
         public string SHA3Hashing(string textToHash)
         {
-            SHA3_256 sha3 = SHA3_256.Create();
-
             byte[] byteArrayTextToHash = Encoding.ASCII.GetBytes(textToHash);
 
-            byte[] hashedValue = sha3.ComputeHash(byteArrayTextToHash);
+            byte[] hashedValue = SHA3_256.HashData(byteArrayTextToHash);
 
             return Convert.ToBase64String(hashedValue);
         }
@@ -54,8 +50,10 @@ namespace BlazorTestApp.Hashing
             byte[] byteArrayTextToHash = Encoding.ASCII.GetBytes(textToHash);
             byte[] myKey1 = Encoding.ASCII.GetBytes(myKey);
 
-            HMACSHA256 hmac = new HMACSHA256();
-            hmac.Key = myKey1;
+            HMACSHA256 hmac = new()
+            {
+                Key = myKey1
+            };
 
             byte[] hashedValue = hmac.ComputeHash(byteArrayTextToHash);
 
@@ -90,21 +88,15 @@ namespace BlazorTestApp.Hashing
         {
             byte[] byteValue = Encoding.UTF8.GetBytes(hashedValue);
 
-            switch (format)
+            return format switch
             {
-                case HashedFormat.String:
-                    return Convert.ToBase64String(byteValue);
-                case HashedFormat.ByteArray:
-                    return byteValue;
-                case HashedFormat.Int:
-                    return BitConverter.ToInt32(byteValue, 0);
-                case HashedFormat.HexString:
-                    return BitConverter.ToString(byteValue).Replace("-", "");
-                case HashedFormat.UTFString:
-                    return Encoding.UTF8.GetString(byteValue);
-                default:
-                    throw new ArgumentException("Du skal vælge et format");
-            }
+                HashedFormat.String => Convert.ToBase64String(byteValue),
+                HashedFormat.ByteArray => byteValue,
+                HashedFormat.Int => BitConverter.ToInt32(byteValue, 0),
+                HashedFormat.HexString => BitConverter.ToString(byteValue).Replace("-", ""),
+                HashedFormat.UTFString => Encoding.UTF8.GetString(byteValue),
+                _ => throw new ArgumentException("Du skal vælge et format"),
+            };
         }
     }
 }

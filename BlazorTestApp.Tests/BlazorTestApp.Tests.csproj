@@ -7,10 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Remove="LoginRazorTests.razor" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Using Include="Bunit" />
 		<Using Include="Bunit.TestDoubles" />
 		<Using Include="Microsoft.Extensions.DependencyInjection" />
@@ -38,7 +34,5 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\BlazorTestApp\BlazorTestApp.csproj" />
 	</ItemGroup>
-
-
 
 </Project>
