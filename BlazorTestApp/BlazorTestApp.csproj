@@ -22,11 +22,16 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
     <PackageReference Include="QRCoder" Version="1.4.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.7" />
     <PackageReference Include="SkiaSharp.QrCode" Version="0.7.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +39,7 @@
     <Folder Include="Components\Pages\Pokemon\" />
     <Folder Include="Data\Migrations\" />
     <Folder Include="Migrations\TodoDb\" />
+    <Folder Include="Repository\" />
   </ItemGroup>
 
 </Project>
