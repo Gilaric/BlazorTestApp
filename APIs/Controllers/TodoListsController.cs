@@ -10,7 +10,7 @@ using BlazorTestApp.Models;
 
 namespace APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class TodoListsController : ControllerBase
     {
@@ -23,7 +23,6 @@ namespace APIs.Controllers
 
         // GET: api/TodoLists
         [HttpGet]
-        [Route("{medicId}")]
         public async Task<ActionResult<IEnumerable<TodoList>>> GetTodoLists()
         {
             return await _context.TodoLists.ToListAsync();
@@ -31,7 +30,6 @@ namespace APIs.Controllers
 
         // GET: api/TodoLists/5
         [HttpGet("{id}")]
-        [Route("{medicId}")]
         public async Task<ActionResult<TodoList>> GetTodoList(int id)
         {
             var todoList = await _context.TodoLists.FindAsync(id);
@@ -47,7 +45,6 @@ namespace APIs.Controllers
         // PUT: api/TodoLists/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        [Route("{medicId}")]
         public async Task<IActionResult> PutTodoList(int id, TodoList todoList)
         {
             if (id != todoList.ToDoListId)
@@ -79,7 +76,6 @@ namespace APIs.Controllers
         // POST: api/TodoLists
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        [Route("{medicId}")]
         public async Task<ActionResult<TodoList>> PostTodoList(TodoList todoList)
         {
             _context.TodoLists.Add(todoList);
@@ -90,7 +86,6 @@ namespace APIs.Controllers
 
         // DELETE: api/TodoLists/5
         [HttpDelete("{id}")]
-        [Route("{medicId}")]
         public async Task<IActionResult> DeleteTodoList(int id)
         {
             var todoList = await _context.TodoLists.FindAsync(id);
