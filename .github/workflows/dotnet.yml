@@ -6,12 +6,10 @@ name: .NET
 on:
   push:
     branches:       
-      - "master"
-      - "Philip"
+      [master, Philip]
   pull_request:
     branches:       
-      - "master"
-      - "Philip"
+      [master, Philip]
 
 jobs:
   build-and-test:
