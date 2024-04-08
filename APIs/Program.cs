@@ -6,7 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.SuppressMapClientErrors = true;
+    });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -19,12 +24,12 @@ builder.Services.AddSwaggerGen(options =>
         {
             Name = "",
             Email = "",
-            Url = new Uri(""),
+            //Url = new Uri(""),
         },
         License = new OpenApiLicense
         {
             Name = "",
-            Url = new Uri(""),
+            //Url = new Uri(""),
         },
         Version = "v1"
     });

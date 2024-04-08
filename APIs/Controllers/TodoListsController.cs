@@ -10,8 +10,9 @@ using BlazorTestApp.Models;
 
 namespace APIs.Controllers
 {
-    [Route("[controller]")]
     [ApiController]
+    [Route("[controller]")]
+    [Produces("application/json")]
     public class TodoListsController : ControllerBase
     {
         private readonly TodoDbContext _context;
@@ -45,9 +46,13 @@ namespace APIs.Controllers
         ///     }
         ///
         /// </remarks>
-        /// <response code="201">Returns the newly created item</response>
-        /// <response code="400">If the item is null</response>
+        /// <response code="201">Returns the a list of Todo items</response>
+        /// <response code="400">If the list is null</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(TodoList),StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<TodoList>> GetTodoList(int id)
         {
             var todoList = await _context.TodoLists.FindAsync(id);
@@ -63,6 +68,8 @@ namespace APIs.Controllers
         // PUT: api/TodoLists/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutTodoList(int id, TodoList todoList)
         {
             if (id != todoList.ToDoListId)
