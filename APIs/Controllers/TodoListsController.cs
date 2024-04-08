@@ -29,6 +29,24 @@ namespace APIs.Controllers
         }
 
         // GET: api/TodoLists/5
+        /// <summary>
+        /// Gets a specific TodoItem.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /Todo
+        ///     {
+        ///        "id": 1,
+        ///        "name": "Item #1",
+        ///        "isComplete": true
+        ///     }
+        ///
+        /// </remarks>
+        /// <response code="201">Returns the newly created item</response>
+        /// <response code="400">If the item is null</response>
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoList>> GetTodoList(int id)
         {
