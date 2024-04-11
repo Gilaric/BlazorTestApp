@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using BlazorTestApp.Hubs;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,12 +102,36 @@ builder.WebHost.UseKestrel((context, serverOptions) =>
 // Data protection / Encryption
 builder.Services.AddDataProtection();
 
+builder.Services.AddControllers();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Api",
+        Description = "A test",
+        Contact = new OpenApiContact
+        {
+            Name = "",
+            Email = "",
+            //Url = new Uri(""),
+        },
+        License = new OpenApiLicense
+        {
+            Name = "",
+            //Url = new Uri(""),
+        },
+        Version = "v1"
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 else
 {
@@ -130,5 +155,6 @@ app.MapHub<ChatHub>("/chathub");
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+app.MapControllers();
 
 app.Run();
