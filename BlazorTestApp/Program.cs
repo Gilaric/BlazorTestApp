@@ -102,7 +102,13 @@ builder.WebHost.UseKestrel((context, serverOptions) =>
 // Data protection / Encryption
 builder.Services.AddDataProtection();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressMapClientErrors = true;
+}
+);
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo

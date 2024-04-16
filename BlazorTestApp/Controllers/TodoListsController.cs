@@ -10,7 +10,7 @@ using BlazorTestApp.Models;
 
 namespace BlazorTestApp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class TodoListsController : ControllerBase
     {
@@ -22,6 +22,7 @@ namespace BlazorTestApp.Controllers
         }
 
         // GET: api/TodoLists
+        [Produces("application/json")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoList>>> GetTodoLists()
         {
@@ -29,6 +30,7 @@ namespace BlazorTestApp.Controllers
         }
 
         // GET: api/TodoLists/5
+        [Produces("application/json")]
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoList>> GetTodoList(int id)
         {
@@ -44,6 +46,7 @@ namespace BlazorTestApp.Controllers
 
         // PUT: api/TodoLists/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Produces("application/json")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTodoList(int id, TodoList todoList)
         {
@@ -75,6 +78,7 @@ namespace BlazorTestApp.Controllers
 
         // POST: api/TodoLists
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Produces("application/json")]
         [HttpPost]
         public async Task<ActionResult<TodoList>> PostTodoList(TodoList todoList)
         {
@@ -85,6 +89,7 @@ namespace BlazorTestApp.Controllers
         }
 
         // DELETE: api/TodoLists/5
+        [Produces("application/json")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodoList(int id)
         {
