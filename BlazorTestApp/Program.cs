@@ -10,9 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.ResponseCompression;
 using BlazorTestApp.Hubs;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,12 +88,15 @@ builder.WebHost.UseKestrel((context, serverOptions) =>
 });
 
 // Certificate stuff
+// path: %USERPROFILE%\.aspnet\https\Philip.pfx
 //string userfolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 //userfolder = Path.Combine(userfolder, ".aspnet");
 //userfolder = Path.Combine(userfolder, "https");
 //userfolder = Path.Combine(userfolder, "Philip.pfx");
 //builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Path").Value = userfolder;
 
+// Get kestrel password from key value from soultions secrets.json. 
+// "myKestrelPassword" : "Test"
 //string? kestrelCertPassword = builder.Configuration.GetValue<string>("myKestrelPassword");
 //builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelCertPassword;
 
@@ -104,11 +105,13 @@ builder.Services.AddDataProtection();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
-{
-    options.SuppressMapClientErrors = true;
-}
+    {
+        options.SuppressMapClientErrors = true;
+    }
 );
+
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -117,16 +120,16 @@ builder.Services.AddSwaggerGen(options =>
         Description = "A test",
         Contact = new OpenApiContact
         {
-            Name = "",
-            Email = "",
+            Name = "TestContact",
+            Email = "TestContactEmail@Email.com",
             //Url = new Uri(""),
         },
         License = new OpenApiLicense
         {
-            Name = "",
+            Name = "TestLicense",
             //Url = new Uri(""),
         },
-        Version = "v1"
+        Version = "v1.01"
     });
 });
 
